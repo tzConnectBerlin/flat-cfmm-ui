@@ -5,6 +5,7 @@ import styled from '@emotion/styled';
 import { Field, Form, Formik } from 'formik';
 import { Button, Grid, Paper } from '@material-ui/core';
 import { useHistory } from 'react-router-dom';
+import { useToasts } from 'react-toast-notifications';
 import Page from '../../components/Page';
 import FormikTextField from '../../components/TextField';
 import { useWallet } from '../../wallet/hooks';
@@ -36,6 +37,7 @@ interface SettingsForm {
 
 const SettingsComponent: React.FC<WithTranslation> = ({ t }) => {
   const [{ pkh: userAddress }] = useWallet();
+  const { addToast } = useToasts();
   const [initialValues, setInitialValues] = useState<SettingsForm>({
     nodeUrl: '',
     nodePort: '',
@@ -45,14 +47,22 @@ const SettingsComponent: React.FC<WithTranslation> = ({ t }) => {
 
   const handleFormSubmit = async (data: SettingsForm) => {
     if (userAddress) {
-      updateNodeURL(userAddress, data.nodeUrl);
-      updateNodePort(userAddress, String(data.nodePort));
-      updateCFMMContract(userAddress, data.cfmm);
       try {
         initTezos(data.nodeUrl, data.nodePort);
         await initContracts(data.cfmm);
+        updateNodeURL(userAddress, data.nodeUrl);
+        updateNodePort(userAddress, String(data.nodePort));
+        updateCFMMContract(userAddress, data.cfmm);
         history.push('/');
+        addToast('Settings Saved', {
+          appearance: 'success',
+          autoDismiss: true,
+        });
       } catch (error) {
+        addToast('Unable to save settings. Please check and try again.', {
+          appearance: 'error',
+          autoDismiss: true,
+        });
         logger.error(error);
       }
     }
