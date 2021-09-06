@@ -93,7 +93,7 @@ export const ProfilePopover: React.FC<ProfilePopoverProps> = ({
                   {`ꜩ: ${balance.xtz}`}
                 </Typography>
                 <Typography size="subtitle2" component="span" color="textSecondary">
-                  {`cꜩ: ${balance.ctez}`}
+                  {`Cash: ${balance.cash}`}
                 </Typography>
               </>
             )}

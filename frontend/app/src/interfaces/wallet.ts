@@ -14,6 +14,7 @@ export interface IWalletContext {
 }
 
 export interface UserBalance {
+  token: number;
+  cash: number;
   xtz: number;
-  ctez: number;
 }

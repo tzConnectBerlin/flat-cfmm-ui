@@ -4,7 +4,7 @@ import { IconButton, Grid, Box } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import { SignIn } from '../SignIn/SignIn';
 import { NavigationDrawer } from '../NavigationDrawer/NavigationDrawer';
-import { CTezIcon } from '../CTezIcon/CTezIcon';
+import TezosIcon from '../TezosIcon';
 
 export interface StatItem {
   title: string;
@@ -70,7 +70,7 @@ export const Header: React.FC<HeaderProps> = ({ onClick, stats, loggedIn }) => {
                 aria-hidden="true"
                 style={{ display: 'flex', flexGrow: 1, cursor: 'pointer' }}
               >
-                <CTezIcon />
+                <TezosIcon />
               </div>
             </Grid>
             <Grid item className="sign-in">

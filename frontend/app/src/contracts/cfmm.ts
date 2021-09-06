@@ -7,21 +7,30 @@ import {
   ErrorType,
   RemoveLiquidityParams,
   TokenToCashParams,
-  TokenToTokenParams,
+  UserBalance,
 } from '../interfaces';
-import { CFMM_ADDRESS, FA2_TOKEN_ID } from '../utils/globals';
+import {
+  CASH_FA12_CONTRACT,
+  CFMM_ADDRESS,
+  FA2_TOKEN_ADDRESS,
+  FA2_TOKEN_ID,
+  LQT_FA12_ADDRESS,
+} from '../utils/globals';
 import { getTezosInstance } from './client';
-import { getCTezFa12Contract, getLQTContract } from './fa12';
-import { executeMethod, initContract } from './utils';
+import { initContract } from './utils';
 
 let cfmm: WalletContract;
-let token: WalletContract;
+let LQTFa12: WalletContract | null = null;
+let TokenFA2: WalletContract | null = null;
+let CashFA12: WalletContract | null = null;
 
 type FA12TokenType = 'ctez' | 'lqt';
 
-export const initCfmm = async (address: string, tokenAddress: string): Promise<void> => {
-  cfmm = await initContract(address);
-  token = await initContract(tokenAddress);
+export const initContracts = async (): Promise<void> => {
+  cfmm = await initContract(CFMM_ADDRESS);
+  LQTFa12 = await initContract(LQT_FA12_ADDRESS);
+  CashFA12 = await initContract(CASH_FA12_CONTRACT);
+  TokenFA2 = await initContract(FA2_TOKEN_ADDRESS);
 };
 
 export const getCfmmStorage = async (): Promise<CfmmStorage> => {
@@ -30,8 +39,10 @@ export const getCfmmStorage = async (): Promise<CfmmStorage> => {
 };
 
 export const getLQTContractStorage = async (): Promise<any> => {
-  const lqtContract = await getLQTContract();
-  const storage: any = await lqtContract.storage();
+  if (!LQTFa12) {
+    throw new Error('LQT contract not initialized');
+  }
+  const storage: any = await LQTFa12.storage();
   return storage;
 };
 
@@ -67,9 +78,8 @@ export const getTokenAllowanceOps = async (
 
 export const addLiquidity = async (args: AddLiquidityParams): Promise<string> => {
   const tezos = getTezosInstance();
-  const CTezFa12 = await getCTezFa12Contract();
   const batchOps: WalletParamsWithKind[] = await getTokenAllowanceOps(
-    CTezFa12,
+    CashFA12!,
     args.owner,
     args.maxTokensDeposited,
   );
@@ -77,7 +87,7 @@ export const addLiquidity = async (args: AddLiquidityParams): Promise<string> =>
     ...batchOps,
     {
       kind: OpKind.TRANSACTION,
-      ...token.methods
+      ...TokenFA2!.methods
         .update_operators([
           {
             add_operator: {
@@ -103,7 +113,7 @@ export const addLiquidity = async (args: AddLiquidityParams): Promise<string> =>
     },
     {
       kind: OpKind.TRANSACTION,
-      ...token.methods
+      ...TokenFA2!.methods
         .update_operators([
           {
             remove_operator: {
@@ -125,9 +135,8 @@ export const removeLiquidity = async (
   userAddress: string,
 ): Promise<string> => {
   const tezos = getTezosInstance();
-  const LQTFa12 = await getLQTContract();
   const batchOps: WalletParamsWithKind[] = await getTokenAllowanceOps(
-    LQTFa12,
+    LQTFa12!,
     userAddress,
     args.lqtBurned,
     'lqt',
@@ -148,7 +157,7 @@ export const removeLiquidity = async (
     },
     {
       kind: OpKind.TRANSACTION,
-      ...LQTFa12.methods.approve(CFMM_ADDRESS, 0).toTransferParams(),
+      ...LQTFa12!.methods.approve(CFMM_ADDRESS, 0).toTransferParams(),
     },
   ]);
   const hash = await batch.send();
@@ -157,9 +166,8 @@ export const removeLiquidity = async (
 
 export const cashToToken = async (args: CashToTokenParams): Promise<string> => {
   const tezos = getTezosInstance();
-  const CTezFa12 = await getCTezFa12Contract();
   const batchOps: WalletParamsWithKind[] = await getTokenAllowanceOps(
-    CTezFa12,
+    CashFA12!,
     args.to,
     args.amount,
   );
@@ -179,7 +187,7 @@ export const cashToToken = async (args: CashToTokenParams): Promise<string> => {
     },
     {
       kind: OpKind.TRANSACTION,
-      ...CTezFa12.methods.approve(CFMM_ADDRESS, 0).toTransferParams(),
+      ...CashFA12!.methods.approve(CFMM_ADDRESS, 0).toTransferParams(),
     },
   ]);
   const hash = await batch.send();
@@ -195,7 +203,7 @@ export const tokenToCash = async (
   const batch = tezos.wallet.batch([
     {
       kind: OpKind.TRANSACTION,
-      ...token.methods
+      ...TokenFA2!.methods
         .update_operators([
           {
             add_operator: {
@@ -220,7 +228,7 @@ export const tokenToCash = async (
     },
     {
       kind: OpKind.TRANSACTION,
-      ...token.methods
+      ...TokenFA2!.methods
         .update_operators([
           {
             remove_operator: {
@@ -237,15 +245,16 @@ export const tokenToCash = async (
   return hash.opHash;
 };
 
-export const tokenToToken = async (args: TokenToTokenParams): Promise<string> => {
-  const hash = await executeMethod(cfmm, 'tokenToToken', [
-    args.outputCfmmContract,
-    args.minTokensBought * 1e6,
-    args.to,
-    args.tokensSold * 1e6,
-    args.deadline.toISOString(),
-  ]);
-  return hash;
+export const getUserBalance = async (userAddress: string): Promise<UserBalance> => {
+  const tezos = getTezosInstance();
+  const cashFa12Storage: any = await CashFA12!.storage();
+  const cash = ((await cashFa12Storage.tokens.get(userAddress)) ?? 0).shiftedBy(-6).toNumber() ?? 0;
+  const xtz = ((await tezos.tz.getBalance(userAddress)) ?? 0).shiftedBy(-6).toNumber() ?? 0;
+  return {
+    xtz,
+    cash,
+    token: 0,
+  };
 };
 
 /**

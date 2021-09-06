@@ -4,21 +4,11 @@ import { withTranslation, WithTranslation } from 'react-i18next';
 import styled from '@emotion/styled';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 import { Button, Grid, Paper } from '@material-ui/core';
-import { useToasts } from 'react-toast-notifications';
 import { useHistory } from 'react-router-dom';
 import Page from '../../components/Page';
 import FormikTextField from '../../components/TextField';
 import { useWallet } from '../../wallet/hooks';
-import {
-  CFMM_ADDRESS,
-  CTEZ_ADDRESS,
-  FA2_TOKEN_ADDRESS,
-  RPC_PORT,
-  RPC_URL,
-  TZKT_API,
-  TZKT_PORT,
-} from '../../utils/globals';
-import { initCTez } from '../../contracts/ctez';
+import { RPC_PORT, RPC_URL, TZKT_API, TZKT_PORT } from '../../utils/globals';
 import {
   getNodePort,
   getNodeURL,
@@ -32,9 +22,8 @@ import {
   updateTzKtURL,
 } from '../../utils/settingUtils';
 import { initTezos } from '../../contracts/client';
-import { initCfmm } from '../../contracts/cfmm';
 import { logger } from '../../utils/logger';
-import { getLastOvenId, saveLastOven } from '../../utils/ovenUtils';
+import { initContracts } from '../../contracts/cfmm';
 
 const PaperStyled = styled(Paper)`
   padding: 2em;
@@ -45,32 +34,27 @@ interface SettingsForm {
   nodePort: number | string;
   tzktUrl: string;
   tzktPort: number | string;
-  lastOvenId: number;
 }
 
 const SettingsComponent: React.FC<WithTranslation> = ({ t }) => {
-  const { addToast } = useToasts();
   const [{ pkh: userAddress }] = useWallet();
   const [initialValues, setInitialValues] = useState<SettingsForm>({
     nodeUrl: '',
     nodePort: '',
     tzktUrl: '',
     tzktPort: '',
-    lastOvenId: 0,
   });
   const history = useHistory();
 
   const handleFormSubmit = async (data: SettingsForm, formHelper: FormikHelpers<SettingsForm>) => {
-    if (userAddress && CTEZ_ADDRESS && CFMM_ADDRESS) {
+    if (userAddress) {
       updateNodeURL(userAddress, data.nodeUrl);
       updateTzKtURL(userAddress, data.tzktUrl);
       updateNodePort(userAddress, String(data.nodePort));
       updateTzKtPort(userAddress, String(data.tzktPort));
-      saveLastOven(userAddress, CTEZ_ADDRESS, data.lastOvenId);
       try {
         initTezos(data.nodeUrl, data.nodePort);
-        await initCTez(CTEZ_ADDRESS);
-        await initCfmm(CFMM_ADDRESS, FA2_TOKEN_ADDRESS);
+        await initContracts();
         history.push('/');
       } catch (error) {
         logger.error(error);
@@ -79,13 +63,12 @@ const SettingsComponent: React.FC<WithTranslation> = ({ t }) => {
   };
 
   useEffect(() => {
-    if (userAddress && CTEZ_ADDRESS) {
+    if (userAddress) {
       setInitialValues({
         nodeUrl: getNodeURL(userAddress) ?? RPC_URL,
         nodePort: getNodePort(userAddress) ?? RPC_PORT,
         tzktPort: getTzKtPort(userAddress) ?? TZKT_PORT,
         tzktUrl: getTzKtURL(userAddress) ?? TZKT_API,
-        lastOvenId: getLastOvenId(userAddress, CTEZ_ADDRESS) ?? 0,
       });
     }
   }, [userAddress]);
@@ -140,7 +123,6 @@ const SettingsComponent: React.FC<WithTranslation> = ({ t }) => {
         message: t('invalidPort'),
       })
       .optional(),
-    lastOvenId: Yup.number().min(0).optional(),
   });
 
   return (
@@ -202,17 +184,6 @@ const SettingsComponent: React.FC<WithTranslation> = ({ t }) => {
                     id="tzktPort"
                     label={t('tzktPort')}
                     className="tzktPort"
-                    type="number"
-                    fullWidth
-                  />
-                </Grid>
-                <Grid item>
-                  <Field
-                    component={FormikTextField}
-                    name="lastOvenId"
-                    id="lastOvenId"
-                    label={t('lastOvenId')}
-                    className="lastOvenId"
                     type="number"
                     fullWidth
                   />

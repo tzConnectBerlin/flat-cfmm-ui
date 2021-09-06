@@ -31,14 +31,6 @@ export interface TokenToCashParams {
   deadline: Date;
 }
 
-export interface TokenToTokenParams {
-  outputCfmmContract: string;
-  minTokensBought: number;
-  to: string;
-  tokensSold: number;
-  deadline: Date;
-}
-
 export interface CfmmStorage {
   tokenPool: BigNumber;
   cashPool: BigNumber;

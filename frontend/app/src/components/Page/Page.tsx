@@ -12,7 +12,7 @@ import { Header } from '../Header';
 import { Typography } from '../Typography';
 import { StatsSlice } from '../../redux/slices/StatsSlice';
 import { StatItem } from '../Header/Header';
-import { useCtezBaseStats } from '../../api/queries';
+import { useBaseStats } from '../../api/queries';
 import { useWallet } from '../../wallet/hooks';
 
 const ContainerStyled = styled(Container)`
@@ -20,28 +20,20 @@ const ContainerStyled = styled(Container)`
   padding-bottom: 2rem;
 `;
 
-const BUY_SELL_STATS = ['totalLiquidity'];
-const OVEN_STATS = [
-  'currentTarget',
-  'currentPrice',
-  'premium',
-  'currentAnnualDrift',
-  'annualDriftPastWeek',
-];
+const BUY_SELL_STATS = ['totalLiquidity', 'currentPrice'];
 
 export interface PageProps {
   title?: string;
   showBackButton?: boolean;
   description?: string;
-  showStats?: boolean;
 }
 
 interface PageLocationStateParams {
   backPath?: string;
 }
 
-export const Page: React.FC<PageProps> = ({ title, children, description, showStats = false }) => {
-  const { state, pathname } = useLocation<PageLocationStateParams>();
+export const Page: React.FC<PageProps> = ({ title, children, description }) => {
+  const { state } = useLocation<PageLocationStateParams>();
   const history = useHistory();
   const { i18n, t } = useTranslation(['common']);
   const lang = i18n.language || window.localStorage.i18nextLng || DEFAULT_LANGUAGE;
@@ -49,18 +41,15 @@ export const Page: React.FC<PageProps> = ({ title, children, description, showSt
   const [{ pkh }] = useWallet();
   const [statsData, setStatsData] = useState<StatItem[]>([]);
   const dispatch = useDispatch();
-  const { data: stats, isLoading } = useCtezBaseStats(pkh);
+  const { data: stats, isLoading } = useBaseStats();
 
   useEffect(() => {
     if (stats) {
       dispatch(StatsSlice.actions.setBaseStats(stats));
-      const keys = pathname.includes('buy-sell') ? [...BUY_SELL_STATS, ...OVEN_STATS] : OVEN_STATS;
-      const data = keys.map((item) => {
-        let value = item === 'totalLiquidity' ? `ꜩ ${stats[item]}` : stats[item];
-        value = item === 'premium' || item.includes('Drift') ? `${value}%` : value;
+      const data = BUY_SELL_STATS.map((item) => {
         return {
           title: t(item),
-          value,
+          value: stats[item],
         };
       });
       setStatsData(data);

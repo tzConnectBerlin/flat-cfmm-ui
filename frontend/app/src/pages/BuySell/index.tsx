@@ -28,7 +28,7 @@ export const BuySell: React.FC = () => {
   };
 
   return (
-    <Page title={t('header:buyOrSell')} showStats>
+    <Page>
       <LinkList {...listItem} />
     </Page>
   );

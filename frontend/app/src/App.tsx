@@ -7,19 +7,10 @@ import DateFnsUtils from '@material-ui/pickers/adapter/date-fns';
 import { WalletProvider } from './wallet/walletContext';
 import { WalletInterface } from './interfaces';
 import { initTezos, setWalletProvider } from './contracts/client';
-import {
-  APP_NAME,
-  NETWORK,
-  RPC_URL,
-  RPC_PORT,
-  CTEZ_ADDRESS,
-  CFMM_ADDRESS,
-  FA2_TOKEN_ADDRESS,
-} from './utils/globals';
+import { APP_NAME, NETWORK, RPC_URL, RPC_PORT } from './utils/globals';
 import { getBeaconInstance, isWalletConnected } from './wallet';
 import { AppRouter } from './router';
-import { initCTez } from './contracts/ctez';
-import { initCfmm } from './contracts/cfmm';
+import { initContracts } from './contracts/cfmm';
 import { logger } from './utils/logger';
 import { getNodePort, getNodeURL } from './utils/settingUtils';
 
@@ -52,8 +43,7 @@ const App: React.FC = () => {
       try {
         initTezos(nodeUrl ?? RPC_URL, nodePort ?? RPC_PORT);
         await checkWalletConnection();
-        CTEZ_ADDRESS && (await initCTez(CTEZ_ADDRESS));
-        CFMM_ADDRESS && (await initCfmm(CFMM_ADDRESS, FA2_TOKEN_ADDRESS));
+        await initContracts();
       } catch (error) {
         logger.error(error);
       }

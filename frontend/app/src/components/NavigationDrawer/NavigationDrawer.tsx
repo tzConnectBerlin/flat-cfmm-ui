@@ -14,7 +14,7 @@ import {
 import React from 'react';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import { GiCookingGlove, GiSwapBag } from 'react-icons/gi';
+import { GiSwapBag } from 'react-icons/gi';
 import { useHistory } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
@@ -113,12 +113,6 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
       <Divider />
       <List>
         <ListItem button onClick={() => history.push('/')}>
-          <ListItemIcon>
-            <GiCookingGlove />
-          </ListItemIcon>
-          <ListItemText primary={t('myOvens')} />
-        </ListItem>
-        <ListItem button onClick={() => history.push('/buy-sell')}>
           <ListItemIcon>
             <GiSwapBag />
           </ListItemIcon>

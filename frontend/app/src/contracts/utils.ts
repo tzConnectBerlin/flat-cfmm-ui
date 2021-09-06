@@ -1,21 +1,5 @@
-import { ContractAbstraction, Wallet, WalletContract } from '@taquito/taquito';
+import { ContractAbstraction, Wallet } from '@taquito/taquito';
 import { getTezosInstance } from './client';
-
-export const executeMethod = async (
-  contract: WalletContract,
-  methodName: string,
-  args: unknown[] = [['Unit']],
-  confirmation = 0,
-  amount = 0,
-  mutez = false,
-): Promise<string> => {
-  const op = await contract.methods[methodName](...args).send({
-    amount: amount > 0 ? amount : undefined,
-    mutez,
-  });
-  confirmation && (await op.confirmation(confirmation));
-  return op.opHash;
-};
 
 export const initContract = async (
   address: string | null = null,

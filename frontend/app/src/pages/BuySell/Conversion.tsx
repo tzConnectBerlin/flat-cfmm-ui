@@ -23,7 +23,6 @@ import FormikTextField from '../../components/TextField';
 import { useWallet } from '../../wallet/hooks';
 import { cashToToken, cfmmError, tokenToCash } from '../../contracts/cfmm';
 import { TezosIcon } from '../../components/TezosIcon';
-import { CTezIcon } from '../../components/CTezIcon/CTezIcon';
 import { logger } from '../../utils/logger';
 import { DEFAULT_SLIPPAGE } from '../../utils/globals';
 import { useCfmmStorage } from '../../api/queries';
@@ -207,7 +206,7 @@ const ConvertComponent: React.FC<ConversionParams> = ({ t, formType }) => {
                           {formType === 'cashToToken' ? (
                             <TezosIcon height={30} width={30} />
                           ) : (
-                            <CTezIcon height={30} width={30} />
+                            <Typography>Cash</Typography>
                           )}
                         </InputAdornment>
                       ),
@@ -217,7 +216,7 @@ const ConvertComponent: React.FC<ConversionParams> = ({ t, formType }) => {
                           ≈
                           {formType === 'cashToToken' ? (
                             <>
-                              <CTezIcon height={30} width={30} />
+                              <Typography>Cash</Typography>
                               {minWithoutSlippage}
                             </>
                           ) : (

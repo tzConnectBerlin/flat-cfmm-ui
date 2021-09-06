@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { Baker, Block, CTezTzktStorage } from '../interfaces';
-import { TZKT_API, CTEZ_ADDRESS, TZKT_PORT } from '../utils/globals';
+import { Baker, Block } from '../interfaces';
+import { TZKT_API, TZKT_PORT } from '../utils/globals';
 import { getTzKtPort, getTzKtURL } from '../utils/settingUtils';
 
 const get = async <T, P>(endpoint: string, queryParams?: P, userAddress?: string): Promise<T> => {
@@ -29,16 +29,4 @@ export const getLastBlockOfTheDay = async (date: string, userAddress?: string): 
     userAddress,
   );
   return data[0];
-};
-
-export const getCTezTzktStorage = async (
-  level?: number,
-  userAddress?: string,
-): Promise<CTezTzktStorage> => {
-  const storage: CTezTzktStorage = await get(
-    `contracts/${CTEZ_ADDRESS}/storage`,
-    { level },
-    userAddress,
-  );
-  return storage;
 };
