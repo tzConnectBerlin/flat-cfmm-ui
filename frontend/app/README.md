@@ -1,1 +1,0 @@
-# CTez Frontend app
