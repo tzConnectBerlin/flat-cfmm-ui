@@ -2,18 +2,21 @@ import React, { useEffect, useState } from 'react';
 import * as Yup from 'yup';
 import { withTranslation, WithTranslation } from 'react-i18next';
 import styled from '@emotion/styled';
-import { Field, Form, Formik, FormikHelpers } from 'formik';
+import { Field, Form, Formik } from 'formik';
 import { Button, Grid, Paper } from '@material-ui/core';
 import { useHistory } from 'react-router-dom';
 import Page from '../../components/Page';
 import FormikTextField from '../../components/TextField';
 import { useWallet } from '../../wallet/hooks';
-import { RPC_PORT, RPC_URL } from '../../utils/globals';
+import { CFMM_ADDRESS, RPC_PORT, RPC_URL } from '../../utils/globals';
 import {
+  getCfmmContract,
   getNodePort,
   getNodeURL,
+  isValidContract,
   isValidPort,
   isValidURL,
+  updateCFMMContract,
   updateNodePort,
   updateNodeURL,
 } from '../../utils/settingUtils';
@@ -28,6 +31,7 @@ const PaperStyled = styled(Paper)`
 interface SettingsForm {
   nodeUrl: string;
   nodePort: number | string;
+  cfmm: string;
 }
 
 const SettingsComponent: React.FC<WithTranslation> = ({ t }) => {
@@ -35,16 +39,18 @@ const SettingsComponent: React.FC<WithTranslation> = ({ t }) => {
   const [initialValues, setInitialValues] = useState<SettingsForm>({
     nodeUrl: '',
     nodePort: '',
+    cfmm: '',
   });
   const history = useHistory();
 
-  const handleFormSubmit = async (data: SettingsForm, formHelper: FormikHelpers<SettingsForm>) => {
+  const handleFormSubmit = async (data: SettingsForm) => {
     if (userAddress) {
       updateNodeURL(userAddress, data.nodeUrl);
       updateNodePort(userAddress, String(data.nodePort));
+      updateCFMMContract(userAddress, data.cfmm);
       try {
         initTezos(data.nodeUrl, data.nodePort);
-        await initContracts();
+        await initContracts(data.cfmm);
         history.push('/');
       } catch (error) {
         logger.error(error);
@@ -57,6 +63,7 @@ const SettingsComponent: React.FC<WithTranslation> = ({ t }) => {
       setInitialValues({
         nodeUrl: getNodeURL(userAddress) ?? RPC_URL,
         nodePort: getNodePort(userAddress) ?? RPC_PORT,
+        cfmm: getCfmmContract(userAddress) ?? CFMM_ADDRESS,
       });
     }
   }, [userAddress]);
@@ -87,6 +94,17 @@ const SettingsComponent: React.FC<WithTranslation> = ({ t }) => {
           return true;
         },
         message: t('invalidPort'),
+      })
+      .optional(),
+    cfmm: Yup.string()
+      .test({
+        test: (value) => {
+          if (value) {
+            return isValidContract(value);
+          }
+          return true;
+        },
+        message: t('invalidContract'),
       })
       .optional(),
   });
@@ -129,6 +147,17 @@ const SettingsComponent: React.FC<WithTranslation> = ({ t }) => {
                     label={t('nodePort')}
                     className="nodePort"
                     type="number"
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item>
+                  <Field
+                    component={FormikTextField}
+                    name="cfmm"
+                    id="cfmm"
+                    label={t('cfmmContract')}
+                    className="cfmm"
+                    type="text"
                     fullWidth
                   />
                 </Grid>

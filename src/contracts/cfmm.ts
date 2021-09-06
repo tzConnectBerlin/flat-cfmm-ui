@@ -9,13 +9,8 @@ import {
   TokenToCashParams,
   UserBalance,
 } from '../interfaces';
-import {
-  CASH_FA12_CONTRACT,
-  CFMM_ADDRESS,
-  FA2_TOKEN_ADDRESS,
-  FA2_TOKEN_ID,
-  LQT_FA12_ADDRESS,
-} from '../utils/globals';
+import { CFMM_ADDRESS, FA2_TOKEN_ID } from '../utils/globals';
+import { getCfmmContract } from '../utils/settingUtils';
 import { getTezosInstance } from './client';
 import { initContract } from './utils';
 
@@ -26,16 +21,17 @@ let CashFA12: WalletContract | null = null;
 
 type FA12TokenType = 'ctez' | 'lqt';
 
-export const initContracts = async (): Promise<void> => {
-  cfmm = await initContract(CFMM_ADDRESS);
-  LQTFa12 = await initContract(LQT_FA12_ADDRESS);
-  CashFA12 = await initContract(CASH_FA12_CONTRACT);
-  TokenFA2 = await initContract(FA2_TOKEN_ADDRESS);
-};
-
 export const getCfmmStorage = async (): Promise<CfmmStorage> => {
   const storage = await cfmm.storage<any>();
   return storage;
+};
+
+export const initContracts = async (address: string): Promise<void> => {
+  cfmm = await initContract(address);
+  const { tokenAddress, cashAddress, lqtAddress } = await getCfmmStorage();
+  LQTFa12 = await initContract(lqtAddress);
+  CashFA12 = await initContract(cashAddress);
+  TokenFA2 = await initContract(tokenAddress);
 };
 
 export const getLQTContractStorage = async (): Promise<any> => {

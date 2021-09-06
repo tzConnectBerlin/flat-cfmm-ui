@@ -37,8 +37,7 @@ export interface CfmmStorage {
   pendingPoolUpdates: BigNumber;
   tokenAddress: string;
   lqtAddress: string;
-  lastOracleUpdate: Date;
-  consumerEntrypoint: string;
+  cashAddress: string;
   lqtTotal: BigNumber;
 }
 
