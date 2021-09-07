@@ -4,7 +4,8 @@ import { Popover, Divider, Button } from '@material-ui/core';
 import Address from '../Address';
 import Identicon from '../Identicon';
 import { Typography } from '../Typography';
-import { UserBalance, UserOvenStats } from '../../interfaces';
+import { UserBalance } from '../../interfaces';
+import { CASH_SYMBOL, TOKEN_SYMBOL } from '../../utils/globals';
 
 const useStyles = makeStyles((theme: any) => ({
   popover: {
@@ -91,10 +92,10 @@ export const ProfilePopover: React.FC<ProfilePopoverProps> = ({
                   {`ꜩ: ${balance.xtz}`}
                 </Typography>
                 <Typography size="subtitle2" component="span" color="textSecondary">
-                  {`Cash: ${balance.cash}`}
+                  {`${CASH_SYMBOL}: ${balance.cash}`}
                 </Typography>
                 <Typography size="subtitle2" component="span" color="textSecondary">
-                  {`Token: ${balance.token}`}
+                  {`${TOKEN_SYMBOL}: ${balance.token}`}
                 </Typography>
               </>
             )}

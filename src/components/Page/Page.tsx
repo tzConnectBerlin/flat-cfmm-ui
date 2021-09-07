@@ -7,7 +7,7 @@ import { Helmet } from 'react-helmet-async';
 import { useHistory, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { DEFAULT_LANGUAGE } from '../../i18n';
-import { APP_NAME, NETWORK } from '../../utils/globals';
+import { APP_NAME, CASH_SYMBOL, NETWORK, TOKEN_SYMBOL } from '../../utils/globals';
 import { Header } from '../Header';
 import { Typography } from '../Typography';
 import { StatsSlice } from '../../redux/slices/StatsSlice';
@@ -48,7 +48,7 @@ export const Page: React.FC<PageProps> = ({ title, children, description }) => {
       dispatch(StatsSlice.actions.setBaseStats(stats));
       const data = BUY_SELL_STATS.map((item) => {
         return {
-          title: t(item),
+          title: t(item, { cash: CASH_SYMBOL, token: TOKEN_SYMBOL }),
           value: stats[item],
         };
       });
