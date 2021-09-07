@@ -23,7 +23,7 @@ import FormikTextField from '../../components/TextField';
 import { useWallet } from '../../wallet/hooks';
 import { cashToToken, cfmmError, tokenToCash } from '../../contracts/cfmm';
 import { logger } from '../../utils/logger';
-import { DEFAULT_SLIPPAGE } from '../../utils/globals';
+import { CASH_SYMBOL, DEFAULT_SLIPPAGE, TOKEN_SYMBOL } from '../../utils/globals';
 import { useCfmmStorage } from '../../api/queries';
 
 interface ConversionParams extends WithTranslation {
@@ -202,9 +202,9 @@ const ConvertComponent: React.FC<ConversionParams> = ({ t, formType }) => {
                       startAdornment: (
                         <InputAdornment position="start">
                           {formType === 'cashToToken' ? (
-                            <Typography>{`Cash: `}</Typography>
+                            <Typography>{`${CASH_SYMBOL}: `}</Typography>
                           ) : (
-                            <Typography>{`Token: `}</Typography>
+                            <Typography>{`${TOKEN_SYMBOL}: `}</Typography>
                           )}
                         </InputAdornment>
                       ),
@@ -212,11 +212,11 @@ const ConvertComponent: React.FC<ConversionParams> = ({ t, formType }) => {
                         <InputAdornment position="end">
                           {formType === 'cashToToken' ? (
                             <>
-                              <Typography>{`≈ Token: ${minWithoutSlippage}`}</Typography>
+                              <Typography>{`≈ ${TOKEN_SYMBOL}: ${minWithoutSlippage}`}</Typography>
                             </>
                           ) : (
                             <>
-                              <Typography>{`≈ Cash: ${minWithoutSlippage}`}</Typography>
+                              <Typography>{`≈ ${CASH_SYMBOL}: ${minWithoutSlippage}`}</Typography>
                             </>
                           )}
                         </InputAdornment>
@@ -269,9 +269,9 @@ const ConvertComponent: React.FC<ConversionParams> = ({ t, formType }) => {
                         {minBuyValue > -1 && (
                           <Grid item>
                             <Typography>
-                              {`${t(
-                                formType === 'cashToToken' ? 'minCtezBought' : 'minTezBought',
-                              )}: ${minBuyValue}`}
+                              {`${t('minTokCashBought', {
+                                tok: formType === 'cashToToken' ? TOKEN_SYMBOL : CASH_SYMBOL,
+                              })}: ${minBuyValue}`}
                             </Typography>
                           </Grid>
                         )}

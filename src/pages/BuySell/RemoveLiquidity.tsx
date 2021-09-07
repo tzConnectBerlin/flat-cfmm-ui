@@ -23,7 +23,7 @@ import FormikTextField from '../../components/TextField';
 import { useWallet } from '../../wallet/hooks';
 import { RemoveLiquidityParams } from '../../interfaces';
 import { cfmmError, removeLiquidity } from '../../contracts/cfmm';
-import { DEFAULT_SLIPPAGE } from '../../utils/globals';
+import { CASH_SYMBOL, DEFAULT_SLIPPAGE, TOKEN_SYMBOL } from '../../utils/globals';
 import { useCfmmStorage } from '../../api/queries';
 
 const PaperStyled = styled(Paper)`
@@ -159,10 +159,14 @@ const RemoveLiquidityComponent: React.FC<WithTranslation> = ({ t }) => {
                   />
                 </Grid>
                 <Grid item>
-                  <Typography>{`${t('minCashWithdrawn')}: ${values.cashWithdraw}`}</Typography>
+                  <Typography>{`${t('minCashWithdrawn', { cash: CASH_SYMBOL })}: ${
+                    values.cashWithdraw
+                  }`}</Typography>
                 </Grid>
                 <Grid item>
-                  <Typography>{`${t('minTokensWithdrawn')}: ${values.tokenWithdraw}`}</Typography>
+                  <Typography>{`${t('minTokensWithdrawn', { token: TOKEN_SYMBOL })}: ${
+                    values.tokenWithdraw
+                  }`}</Typography>
                 </Grid>
                 <Grid item>
                   <Accordion>

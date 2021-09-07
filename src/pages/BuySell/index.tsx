@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { LinkList, LinkListProps } from '../../components/LinkList/LinkList';
 import Page from '../../components/Page';
+import { CASH_SYMBOL, TOKEN_SYMBOL } from '../../utils/globals';
 
 export const BuySell: React.FC = () => {
   const { t } = useTranslation(['common', 'header']);
@@ -17,11 +18,11 @@ export const BuySell: React.FC = () => {
         to: '/buy-sell/remove-liquidity',
       },
       {
-        primary: t('cashToToken'),
+        primary: `${CASH_SYMBOL} to ${TOKEN_SYMBOL}`,
         to: '/buy-sell/cash-to-token',
       },
       {
-        primary: t('tokenToCash'),
+        primary: `${TOKEN_SYMBOL} to ${CASH_SYMBOL}`,
         to: '/buy-sell/token-to-cash',
       },
     ],

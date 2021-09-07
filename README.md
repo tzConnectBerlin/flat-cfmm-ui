@@ -14,6 +14,8 @@
 - REACT_APP_NETWORK_TYPE: Network to use
 - REACT_APP_RPC_URL: Node RPC URL
 - REACT_APP_RPC_PORT: Node Port
+- REACT_APP_TOKEN_SYMBOL: Token symbol to use in UI
+- REACT_APP_CASH_SYMBOL: Cash symbol to use in UI
 
 ## Assumptions
 

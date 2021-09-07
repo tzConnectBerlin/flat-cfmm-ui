@@ -23,7 +23,7 @@ import { useWallet } from '../../wallet/hooks';
 import { AddLiquidityParams } from '../../interfaces';
 import { addLiquidity, cfmmError } from '../../contracts/cfmm';
 import { logger } from '../../utils/logger';
-import { DEFAULT_SLIPPAGE } from '../../utils/globals';
+import { CASH_SYMBOL, DEFAULT_SLIPPAGE, TOKEN_SYMBOL } from '../../utils/globals';
 import { useCfmmStorage } from '../../api/queries';
 
 const PaperStyled = styled(Paper)`
@@ -140,7 +140,7 @@ const AddLiquidityComponent: React.FC<WithTranslation> = ({ t }) => {
                     component={FormikTextField}
                     name="amount"
                     id="amount"
-                    label={t('cashToDeposit')}
+                    label={t('cashToDeposit', { cash: CASH_SYMBOL })}
                     className="amount"
                     placeholder="0.8"
                     type="number"
@@ -155,7 +155,9 @@ const AddLiquidityComponent: React.FC<WithTranslation> = ({ t }) => {
                 </Grid>
                 {maxTokens > -1 && (
                   <Grid item>
-                    <Typography>{`${t('maxTokenDeposited')}: ${maxTokens}`}</Typography>
+                    <Typography>{`${t('maxTokenDeposited', {
+                      token: TOKEN_SYMBOL,
+                    })}: ${maxTokens}`}</Typography>
                   </Grid>
                 )}
                 {minPoolPercent > -1 && (
