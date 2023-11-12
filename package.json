@@ -14,7 +14,7 @@
     "@taquito/beacon-wallet": "10.1.0",
     "@taquito/taquito": "10.1.0",
     "@taquito/utils": "^10.1.0",
-    "axios": "^0.21.1",
+    "axios": "^1.6.0",
     "bignumber.js": "^9.0.1",
     "blockies-ts": "^1.0.0",
     "date-fns": "^2.19.0",
